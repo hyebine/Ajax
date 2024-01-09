@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>load메서드는 태그형 태그대로 퍼옴 / ajax, xml, json, txt </title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="gnb">
+    <ul>
+
+    </ul>
+  </div>
+  <div id="gnbxml">
+    <ul></ul>
+  </div>
+
+  <div id="gnbjson">
+    <ul></ul>
+  </div>
+
+  <script>
+    $.ajax({
+      type: "GET",
+      url: "/AJAX/data/navi.txt", //요청을 보낼 url
+      dataType: "text",
+      success: function (result) {
+        const navidata = result.split("|");
+
+        let htmltag = "";
+        for (x in navidata) {
+          htmltag += `<li>${navidata[x]}</li>`;
+        }
+        // const htmltag = navidata.map(item => `<li>${item}</li>`)
+        $("#gnb ul").html(htmltag);
+      },
+
+      error: function (a, b) {
+        console.log(a, b);
+      }
+    }
+    )
+    //xml 연동하기
+
+    $.ajax({
+      type: "GET",
+      url: "/AJAX/data/navi.xml",
+      dataType: "xml",
+      success: function (result) {
+        console.log(result.getElementsByTagName('fruit')[0].childNodes[1])
+        let htmltag = '';
+        $(result).find('fruits').children().each(function () {
+          //$(result) 제이쿼리 객체로 인식하고 제이쿼리 문법사용
+          //name 데이터만 가져오고 싶다.
+          htmltag += `<li>${$(this).text()}</li>`;
+        });
+        $('#gnbxml ul').html(htmltag);
+      },
+      error: function (a, b) {
+        console.log(a, b);
+      }
+    });
+
+
+    //json 연동하기
+    $.ajax({
+      type: "GET",
+      url: "/AJAX/data/navi.json",
+      dataType: "json",
+      success: function (data) {
+        console.log(data, typeof data, Array.isArray(data))
+
+        const dataname = data.filter((datalist) => datalist.sale !== "");
+        //datalist에 있는 sale 안에 빈값을 제외하고 나오기
+        let lidata = "";
+
+        
+        // for (x in dataname) {
+        //   lidata += `<li>
+        //     <p>${dataname[x].name}</p>
+        //     <strong>${dataname[x].sale}</strong>
+        //     <strong>${dataname[x].price}</strong>
+        //     </li>`
+        // }
+
+        dataname.map((el) => {
+          lidata += `
+        <li>
+          <p>${el.name}</p>
+          <strong>${el.sale}</strong>
+          <strong>${el.price}</strong>
+          ${el.description}
+          </li>`;
+        })
+
+        $("#gnbjson ul").html(lidata);
+      }
+    })
+
+  </script>
+</body>
+
+</html>
